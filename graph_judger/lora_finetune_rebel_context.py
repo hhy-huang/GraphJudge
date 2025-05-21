@@ -9,7 +9,7 @@ import transformers
 assert (
     "LlamaTokenizer" in transformers._import_structure["models.llama"]
 ), "LLaMA is now in HuggingFace's main branch.\nPlease reinstall it: pip uninstall transformers && pip install git+https://github.com/huggingface/transformers.git"
-from transformers import LlamaForCausalLM, LlamaTokenizer
+from transformers import LlamaForCausalLM, AutoTokenizer
 from peft import (
     LoraConfig,
     get_peft_model,
@@ -22,7 +22,8 @@ from peft import (
 MICRO_BATCH_SIZE = 8                                            # this could actually be 5 but i like powers of 2
 BATCH_SIZE = 128                                                # 128
 GRADIENT_ACCUMULATION_STEPS = BATCH_SIZE // MICRO_BATCH_SIZE
-EPOCHS = 2                                                      # we don't always need 3 tbh
+# EPOCHS = 2                                                      # we don't always need 3 tbh
+STEPS = 500
 LEARNING_RATE = 3e-4                                            # the Karpathy constant
 CUTOFF_LEN = 512
 LORA_R = 8
@@ -35,8 +36,9 @@ TARGET_MODULES = [
 ]
 
 DATA_PATH = "data/rebel_sub_4omini_context/train_instructions_context_llama2_7b.json"
-OUTPUT_DIR = "models/llama2-7b-lora-rebel-sub-context"
-base_model_path = "NousResearch/Llama-2-7b-hf"
+OUTPUT_DIR = "models/llama3-8b-instruct-lora-rebel-sub-context"
+# base_model_path = "NousResearch/Llama-2-7b-hf"
+base_model_path = "/data/haoyuhuang/model/llama-3-8b-Instruct/"
 
 # ddp
 device_map = "auto"
@@ -47,7 +49,7 @@ if ddp:
     GRADIENT_ACCUMULATION_STEPS = GRADIENT_ACCUMULATION_STEPS // world_size
 
 # tokenizer
-tokenizer = LlamaTokenizer.from_pretrained(base_model_path, add_eos_token=True)
+tokenizer = AutoTokenizer.from_pretrained(base_model_path, add_eos_token=True)
 tokenizer.padding_side = "left"
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.pad_token_id = 0
@@ -158,7 +160,8 @@ if __name__ == "__main__":
             per_device_train_batch_size=MICRO_BATCH_SIZE,
             gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
             warmup_steps=100,
-            num_train_epochs=EPOCHS,
+            # num_train_epochs=EPOCHS,
+            max_steps=STEPS,
             learning_rate=LEARNING_RATE,
             fp16=True,
             logging_steps=5,
