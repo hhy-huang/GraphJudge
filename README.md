@@ -55,7 +55,65 @@ LoRA weights have been released: 🤗 <a href="https://huggingface.co/HaoyuHuang
 
 ## Guidance 
 
-Coming soon.
+## Files Introduction
+1. `datasets` contains the used datasets and `prepare_KGCom.ipynb` to "Generate Instruction for Graph Judgement", "Generate test data for Graph Judgement" and "Filter the generated graphs with Judgement result".
+2. `graph_evaluation` contains the graph evaluation metrics.
+3. `chat`contains the sctipts to prompt naive LLMs.
+4. `graph_judger` contains the SFT and inference sctipts.
+
+
+## Guidance 
+
+### ECTD
+
+Run:
+
+```shell
+python ./chat/run_chatgpt_entity.py
+```
+
+Get the denoised text data and entities. Don't forget to change the iteration parameters in the codes (We can do that iteratively to improve the performance). The results are under `./datasets/GPT4o_mini_result_{dataset}/Iteration{i}`. 
+
+Then Run:
+
+```shell
+python ./chat/run_chatgpt_triple.py
+```
+
+Get the generated KG with denoised text data and entities under `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}`.
+
+### KASFT
+
+Then you need to employ SFT on the task of graph judgement with your training data `./datasets/GPT4o_mini_result_{dataset}/train.source` and your generated graph `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}/test_generated_graphs.txt`. Then you need to generate the training instructions in `./datasets/GPT4o_mini_result_{dataset}/prepare_KGCom.ipynb`. You can finish training instructions generation, test data generation and triple filtering here.
+
+So for graph judgement tasks, you need to firstly run the first cell in `./datasets/prepare_KGCom.ipynb`, getting the instruction data `./datasets/GPT4o_mini_result_{dataset}/train_instructions_llama.json`. Then put that in `./graph_judger/data/{dataset}`, and then Run:
+
+```shell
+cd ./graph_judger
+python lora_finetune_{dataset}_context.py
+```
+
+Then we can get the fine-tuned model in `./graph_judger/models/`. Then run the second cell of `./datasets/prepare_KGCom.ipynb` to generate test data from generated triples. And move that under `./graph_judger/data/{dataset}`, which is `test_instructions_context_llama2_7b_itr{i}.csv`. Put that under `./graph_judger/data/{dataset}`. Then Run:
+
+```shell
+cd ./graph_judger
+python lora_infer_batch.py
+```
+
+Then we can get the judging result for every triple we generated, which is `pred_instructions_context_llama2_7b_itr{i}.csv`. Put that under `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}`. Then run the third cell of `./datasets/prepare_KGCom.ipynb` to remove inaccurate the triples in `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}/test_generated_graphs_final.txt` with the label we predicted in `pred_instructions_context_llama2_7b_itr{i}.csv`. Then we will get the final result of our method `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}/test_generated_graphs_final.txt`.
+
+For evaluation, modify the path in `./graph_evaluation/eval.sh` to evaluate the result. Don't forget to put the Bert model under `./graph_evaluation/`.
+
+```shell
+cd ./graph_evaluation
+bash eval.sh
+```
+
+For naive LLM baselines, Run:
+
+```shell
+python ./chat/run_chatgpt.py
+```
 
 ## Cite Us
 ```
