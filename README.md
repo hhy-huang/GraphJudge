@@ -100,7 +100,10 @@ cd ./graph_judger
 python lora_infer_batch.py
 ```
 
-Then we can get the judging result for every triple we generated, which is `pred_instructions_context_llama2_7b_itr{i}.csv`. Put that under `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}`. Then run the third cell of `./datasets/prepare_KGCom.ipynb` to remove inaccurate the triples in `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}/test_generated_graphs_final.txt` with the label we predicted in `pred_instructions_context_llama2_7b_itr{i}.csv`. Then we will get the final result of our method `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}/test_generated_graphs_final.txt`.
+Then we can get the judging result for every triple we generated, which is `pred_instructions_context_llama2_7b_itr{i}.csv`. Put that under `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}`. 
+
+### GJ
+Then run the third cell of `./datasets/prepare_KGCom.ipynb` to remove inaccurate the triples in `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}/test_generated_graphs_final.txt` with the label we predicted in `pred_instructions_context_llama2_7b_itr{i}.csv`. Then we will get the final result of our method `./datasets/GPT4o_mini_result_{dataset}/Graph_Iteration{i}/test_generated_graphs_final.txt`.
 
 For evaluation, modify the path in `./graph_evaluation/eval.sh` to evaluate the result. Don't forget to put the Bert model under `./graph_evaluation/`.
 
