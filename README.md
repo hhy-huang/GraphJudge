@@ -7,6 +7,7 @@ This is the repo for the paper [Can LLMs be Good Graph Judge for Knowledge Graph
 LoRA weights have been released: 🤗 <a href="https://huggingface.co/HaoyuHuang2/graphjudger" target="_blank">Hugging Face</a>.
 
 ## News
+- Released streamlit pipeline of graphjudge: [GraphJudge_TextToKG_Pipeline](https://github.com/CongJie-Pan/GraphJudge_TextToKG_Pipeline), thanks to the community!
 - **Accepted to [EMNLP 2025](https://2025.emnlp.org/) Main Conference! 🎉**
 
 
